@@ -1,19 +1,36 @@
-import { validateUser, validatePartialUser } from '../schemas/user.schema.js'
+import crypto from 'node:crypto'
+import bcryptjs from 'bcryptjs'
 
-export class UserController {
-  // constructor(userModel) {
-  //   this.userModel = userModel
-  // }
+const ENCRYPT_SALT = parseInt(process.env.ENCRYPT_SALT)
+
+export default class UserController {
+  constructor(userModel) {
+    this.userModel = userModel
+  }
 
   addUser = async (req, res) => {
-    const user = validateUser(req.body)
+    const { name, lastName, email, password } = req.body
+    const uuid = crypto.randomUUID()
 
-    if (!user.success) {
-      res.status(400).json({ message: 'Invalid user', errors: user.error })
-      return
+    const user = await this.userModel.findUserByEmail(email)
+
+    if (user) {
+      return res.json({ error: 'Email already registered' })
     }
 
-    res.json({ message: 'addUser' })
+    const info = await this.userModel.create({
+      uuid,
+      name,
+      lastName,
+      email,
+      password: await bcryptjs.hash(password, ENCRYPT_SALT),
+    })
+
+    if (info) {
+      res.json({ message: 'User created successfully' })
+    } else {
+      res.json({ error: 'Error creating user' })
+    }
   }
 
   updateUser = async (req, res) => {
@@ -29,6 +46,12 @@ export class UserController {
   }
 
   getUsers = async (req, res) => {
-    res.json({ message: 'getUsers' })
+    const users = await this.userModel.getAllUsers()
+
+    if (users) {
+      return res.json({ message: 'Users find', data: users })
+    } else {
+      return res.json({ error: 'Users not found' })
+    }
   }
 }

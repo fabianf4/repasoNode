@@ -1,0 +1,25 @@
+### Api healt
+GET http://localhost:3000/api/v1/healt
+
+### Add user // register
+POST http://localhost:3000/api/v1/users
+Content-Type: application/json
+
+{
+  "name": "Fabian",
+  "lastName": "Muñoz",
+  "email": "fabis@gmail.com",
+  "password": "123456Aa-"
+}
+
+### Get users
+GET http://localhost:3000/api/v1/users
+
+### Login
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "fabis@gmail.com",
+  "password": "123456Aa-"
+}
